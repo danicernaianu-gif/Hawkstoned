@@ -263,3 +263,4 @@ async function initFieldReport(){
 initFieldReport();
 
 initS();loadBoard();renderP();setTi(`${PLAYERS[0].name}'s turn to roll.`);log(-1,'"You\'d think getting a beer would be simple."');
+/* force commit */
