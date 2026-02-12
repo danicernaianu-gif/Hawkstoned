@@ -140,3 +140,30 @@ body{
 .win-popup h1{font-family:'Playfair Display',serif;font-size:2.2em;color:#D4A847;margin:14px 0 6px}
 .win-popup .wn{font-family:'Playfair Display',serif;font-size:1.3em;color:white;margin-bottom:8px}
 .win-popup .wq{font-style:italic;color:#E8D4A8;font-size:.9em;max-width:380px;margin:0 auto 16px}
+
+
+/* === FIELD REPORT (SVG shell + HTML scroll overlay) === */
+.field-report-wrap{
+  position:relative;
+  width:100%;
+}
+.field-report-svg svg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.fieldReportLog{
+  position:absolute;
+  overflow-y:auto;
+  box-sizing:border-box;
+  padding:10px 12px;
+  background:transparent;
+  font-family:'Source Serif 4',Georgia,serif;
+  font-size:14px;
+  line-height:18px;
+  color:rgba(0,0,0,.86);
+  scrollbar-width:thin;
+}
+.fieldReportLog::-webkit-scrollbar{width:8px}
+.fieldReportLog::-webkit-scrollbar-thumb{border-radius:8px;background:rgba(0,0,0,.18)}
+.fieldReportLog::-webkit-scrollbar-track{background:transparent}

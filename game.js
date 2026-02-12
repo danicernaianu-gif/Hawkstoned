@@ -204,4 +204,62 @@ for(let i=0;i<4;i++){if(i!==S.cur&&S.p[i].fake){setAa(`<button class="action-btn
 function chalF(t){if(S.p[t].fake){S.p[t].fake=false;S.p[t].frags--;log(S.cur,`challenges ${pN(t)} — FAKE!`);renderP()}S.phase='roll';document.getElementById('rb').disabled=false;setAa('')}
 function skipCh(){S.phase='roll';document.getElementById('rb').disabled=false;setAa('')}
 
+
+/* === SVG FIELD REPORT PANEL ===
+   Requires: assets/svg/field-report.svg
+   In the SVG, add a rectangle named/id'd: slot_log (invisible guide)
+*/
+async function injectSVGInto(el, url){
+  const res = await fetch(url);
+  if(!res.ok) throw new Error(`Failed to load ${url}: ${res.status}`);
+  el.innerHTML = await res.text();
+  return el.querySelector('svg');
+}
+
+function positionOverlayFromSlot(svgEl, slotId, overlayEl, wrapEl){
+  // For inline SVG, getElementById works on the SVG document fragment
+  const slot = (svgEl && svgEl.getElementById) ? svgEl.getElementById(slotId) : document.getElementById(slotId);
+  if(!slot) throw new Error(`Slot not found in SVG: ${slotId}`);
+  const r = slot.getBoundingClientRect();
+  const w = wrapEl.getBoundingClientRect();
+  overlayEl.style.left = (r.left - w.left) + "px";
+  overlayEl.style.top = (r.top - w.top) + "px";
+  overlayEl.style.width = r.width + "px";
+  overlayEl.style.height = r.height + "px";
+}
+
+let _frResizeTimer = null;
+async function initFieldReport(){
+  const wrap = document.getElementById('frw');
+  const host = document.getElementById('frSvg');
+  const overlay = document.getElementById('le');
+  if(!wrap || !host || !overlay) return;
+
+  try{
+    const svg = await injectSVGInto(host, 'assets/svg/field-report.svg');
+
+    const relayout = () => {
+      try{
+        positionOverlayFromSlot(svg, 'slot_log', overlay, wrap);
+        overlay.style.visibility = 'visible';
+      }catch(e){
+        console.warn(e);
+      }
+    };
+
+    relayout();
+    window.addEventListener('resize', () => {
+      clearTimeout(_frResizeTimer);
+      _frResizeTimer = setTimeout(relayout, 50);
+    });
+  }catch(e){
+    console.warn('Field report SVG failed to load:', e);
+    // Fallback: just show the HTML log in normal flow
+    overlay.style.position = 'static';
+    overlay.style.visibility = 'visible';
+  }
+}
+
+initFieldReport();
+
 initS();loadBoard();renderP();setTi(`${PLAYERS[0].name}'s turn to roll.`);log(-1,'"You\'d think getting a beer would be simple."');
