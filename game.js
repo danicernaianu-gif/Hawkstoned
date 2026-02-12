@@ -216,17 +216,42 @@ async function injectSVGInto(el, url){
   return el.querySelector('svg');
 }
 
-function positionOverlayFromSlot(svgEl, slotId, overlayEl, wrapEl){
-  // For inline SVG, getElementById works on the SVG document fragment
-  const slot = (svgEl && svgEl.getElementById) ? svgEl.getElementById(slotId) : document.getElementById(slotId);
-  if(!slot) throw new Error(`Slot not found in SVG: ${slotId}`);
+function findSlotElement(svgEl, slotId){
+  // Preferred: an element with id="slot_log"
+  if(svgEl && svgEl.getElementById){
+    const direct = svgEl.getElementById(slotId);
+    if(direct) return direct;
+
+    // Fallback: old Figma-exported guide ids often include these words.
+    const all = svgEl.querySelectorAll('[id]');
+    for(const el of all){
+      const id = el.getAttribute('id') || '';
+      if(id.includes('DO NOT SHOW') || id.includes('JUST FOR GUIDE') || id.includes('GUIDE')){
+        return el;
+      }
+    }
+  }
+
+  // Last resort: document-level lookup
+  const docEl = document.getElementById(slotId);
+  if(docEl) return docEl;
+
+  return null;
+}
+
+function positionOverlayFromSlot(svgEl, slotId, overlayEl, svgHostEl){
+  const slot = findSlotElement(svgEl, slotId);
+  if(!slot) throw new Error(`Slot not found in SVG. Expected id="${slotId}".`);
+
   const r = slot.getBoundingClientRect();
-  const w = wrapEl.getBoundingClientRect();
-  overlayEl.style.left = (r.left - w.left) + "px";
-  overlayEl.style.top = (r.top - w.top) + "px";
+  const host = svgHostEl.getBoundingClientRect();
+
+  overlayEl.style.left = (r.left - host.left) + "px";
+  overlayEl.style.top = (r.top - host.top) + "px";
   overlayEl.style.width = r.width + "px";
   overlayEl.style.height = r.height + "px";
 }
+
 
 let _frResizeTimer = null;
 async function initFieldReport(){
@@ -235,15 +260,25 @@ async function initFieldReport(){
   const overlay = document.getElementById('le');
   if(!wrap || !host || !overlay) return;
 
+  // Never hide the log completely; worst case it appears unpositioned.
+  overlay.style.visibility = 'visible';
+
   try{
     const svg = await injectSVGInto(host, 'assets/svg/field-report.svg');
+    console.log('Field Report SVG loaded');
 
     const relayout = () => {
       try{
-        positionOverlayFromSlot(svg, 'slot_log', overlay, wrap);
+        positionOverlayFromSlot(svg, 'slot_log', overlay, host);
         overlay.style.visibility = 'visible';
       }catch(e){
-        console.warn(e);
+        console.warn('Field Report slot/position error:', e);
+        overlay.style.position = 'static';
+        overlay.style.left = '';
+        overlay.style.top = '';
+        overlay.style.width = '';
+        overlay.style.height = '';
+        overlay.style.visibility = 'visible';
       }
     };
 

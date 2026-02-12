@@ -92,12 +92,17 @@ body{
 
 /* === RIGHT: FIELD REPORT === */
 .log-area{
-  background-image:url("assets/img/img_aec3f34369039611.png");
-  background-size:100% 100%;background-repeat:no-repeat;
-  border-radius:11px;padding:50px 14px 14px;flex:1;
-  display:flex;flex-direction:column;height:419px;
+  /* Switched to SVG panel shell (assets/svg/field-report.svg). */
+  background:none;
+  border-radius:11px;
+  padding:0;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  height:419px;
   position:relative;
 }
+
 .log-entries{flex:1;overflow-y:auto;font-size:.62em;line-height:1.5;color:#6B3A2A;padding-top:4px}
 .log-entries::-webkit-scrollbar{width:3px}
 .log-entries::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
@@ -167,3 +172,7 @@ body{
 .fieldReportLog::-webkit-scrollbar{width:8px}
 .fieldReportLog::-webkit-scrollbar-thumb{border-radius:8px;background:rgba(0,0,0,.18)}
 .fieldReportLog::-webkit-scrollbar-track{background:transparent}
+
+/* Ensure overlay text sits above the SVG */
+.field-report-svg{position:relative;z-index:1}
+.fieldReportLog{z-index:5}
